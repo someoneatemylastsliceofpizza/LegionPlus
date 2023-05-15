@@ -408,6 +408,11 @@ void RpakLib::ExportQC(const RpakLoadAsset& Asset, const string& Path, const str
 				TextureTypes[i] = MaterialTypes[ParsedMaterial.MaterialType];
 				TextureNames[i] = ParsedMaterial.FullMaterialName.ToLower();
 			}
+			else
+			{
+				TextureTypes[i] = "";
+				TextureNames[i] = "";
+			}
 
 			continue;
 		}
@@ -495,6 +500,7 @@ void RpakLib::ExportQC(const RpakLoadAsset& Asset, const string& Path, const str
 		{
 			string ValidTexture = ValidTextures[i].c_str();
 			string MaterialName = IO::Path::GetFileNameWithoutExtension(ValidTexture);
+
 			ValidTexture = ValidTexture.Replace(TextureTypes[i].ToCString(), "") + TextureTypes[i];
 
 			qc.WriteFmt("$renamematerial \"%s\" \"%s\"\n", MaterialName.Replace(TextureTypes[i].ToCString(), "").ToCString(), ValidTexture.ToCString());

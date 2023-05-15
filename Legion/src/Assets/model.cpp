@@ -490,6 +490,9 @@ std::unique_ptr<Assets::Model> RpakLib::ExtractModel_V16(const RpakLoadAsset& As
 		}
 	}
 
+	if (ModelFormat == ModelExportFormat_t::SMD)
+		IncludeMaterials = false;
+
 	IO::BinaryReader vgReader = IO::BinaryReader(vgStream.get(), true);
 	if(lods.front().numMeshes > 0)
 		this->ExtractModelLod_V16(vgReader, RpakStream, ModelName, vgStream->GetPosition(), Model, Fixups, Asset.AssetVersion, IncludeMaterials);
@@ -890,6 +893,9 @@ std::unique_ptr<Assets::Model> RpakLib::ExtractModel(const RpakLoadAsset& Asset,
 
 	// accept v9-v12.0 (v8 is vtx/vvd/vvc, v12.1+ is new VG)
 	bool useOldVg = (mdlHdr.version().major > 8 && mdlHdr.version().major < 12) || (mdlHdr.version().major == 12 && mdlHdr.version().minor == 0);
+
+	if (ModelFormat == ModelExportFormat_t::SMD) 
+		IncludeMaterials = false;
 
 	if(useOldVg)
 		this->ExtractModelLodOld(StarpakReader, RpakStream, ModelName, Offset, Model, Fixups, Asset.AssetVersion, IncludeMaterials);
