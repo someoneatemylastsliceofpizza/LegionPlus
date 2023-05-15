@@ -151,7 +151,6 @@ std::unique_ptr<Assets::Model> RpakLib::ExtractModel_V16(const RpakLoadAsset& As
 				g_Logger.Info("Seq %d -> %s\n", i, this->ExtractAnimationSeq(Assets[SeqGuid]).ToCString());
 			else
 				g_Logger.Info("Seq %d -> %llx\n", i, SeqGuid);
-
 		}
 		g_Logger.Info("======================\n");
 	}
@@ -287,7 +286,7 @@ std::unique_ptr<Assets::Model> RpakLib::ExtractModel_V16(const RpakLoadAsset& As
 
 	for (int i = 0; i < studiohdr.numtextures; ++i)
 	{
-		materials.EmplaceBack(mstudiomaterial_t{ MaterialBuffer[i], ""});
+		materials.EmplaceBack(mstudiomaterial_t{ MaterialBuffer[i], "" });
 	}
 
 	RMdlFixupPatches Fixups{};
@@ -335,7 +334,7 @@ std::unique_ptr<Assets::Model> RpakLib::ExtractModel_V16(const RpakLoadAsset& As
 		IO::Stream* StarpakStream = StarpakReader.GetBaseStream();
 
 		if (streamedDataSize)
-		{	
+		{
 			// loop through all lods for full vg size
 			for (int i = 0; i < studiohdr.numvgloddata; i++)
 			{
@@ -413,10 +412,8 @@ std::unique_ptr<Assets::Model> RpakLib::ExtractModel_V16(const RpakLoadAsset& As
 		if (Assets.ContainsKey(material.guid))
 		{
 			RpakLoadAsset& MaterialAsset = Assets[material.guid];
-			bool bExportAllMaterials = ExportManager::Config.GetBool("SkinExport") ? IncludeMaterials : false;
 
-			this->ExportMaterialCPU(MaterialAsset, TexturePath);
-			RMdlMaterial ParsedMaterial = this->ExtractMaterial(MaterialAsset, TexturePath, bExportAllMaterials, false);
+			RMdlMaterial ParsedMaterial = this->ExtractMaterial(MaterialAsset, TexturePath, false, false);
 			uint32_t MaterialIndex = Model->AddMaterial(ParsedMaterial.MaterialName, ParsedMaterial.AlbedoHash);
 
 			material.name = ParsedMaterial.MaterialName;
@@ -443,14 +440,13 @@ std::unique_ptr<Assets::Model> RpakLib::ExtractModel_V16(const RpakLoadAsset& As
 		}
 		else {
 			Model->AddMaterial(string::Format("UNK_0x%llx"), 0);
-      
+
 			material.name = string::Format("0x%llx", material.guid);
 
 			if (material.name.Length() > maxMaterialLength)
 				maxMaterialLength = material.name.Length();
 		}
 	}
-
 
 	if (studiohdr.numskinfamilies > 0)
 	{
@@ -490,12 +486,12 @@ std::unique_ptr<Assets::Model> RpakLib::ExtractModel_V16(const RpakLoadAsset& As
 		}
 	}
 
-	if (ModelFormat == ModelExportFormat_t::SMD)
-		IncludeMaterials = false;
+	bool bExportAllMaterials = ExportManager::Config.GetBool("ModelMatExport") ? IncludeMaterials : false;
+
 
 	IO::BinaryReader vgReader = IO::BinaryReader(vgStream.get(), true);
-	if(lods.front().numMeshes > 0)
-		this->ExtractModelLod_V16(vgReader, RpakStream, ModelName, vgStream->GetPosition(), Model, Fixups, Asset.AssetVersion, IncludeMaterials);
+	if (lods.front().numMeshes > 0)
+		this->ExtractModelLod_V16(vgReader, RpakStream, ModelName, vgStream->GetPosition(), Model, Fixups, Asset.AssetVersion, bExportAllMaterials);
 
 	// write QC file when exporting as SMD
 	if (Path != "" && AnimPath != "" && ModelFormat == ModelExportFormat_t::SMD)
@@ -549,7 +545,6 @@ std::unique_ptr<Assets::Model> RpakLib::ExtractModel(const RpakLoadAsset& Asset,
 				g_Logger.Info("Seq %d -> %s\n", i, this->ExtractAnimationSeq(Assets[SeqGuid]).ToCString());
 			else
 				g_Logger.Info("Seq %d -> %llx\n", i, SeqGuid);
-
 		}
 		g_Logger.Info("======================\n");
 	}
@@ -593,7 +588,8 @@ std::unique_ptr<Assets::Model> RpakLib::ExtractModel(const RpakLoadAsset& Asset,
 		default:
 			break;
 		}
-	} else if (Asset.SubHeaderSize != 120)
+	}
+	else if (Asset.SubHeaderSize != 120)
 		studiohdr = Reader.Read<studiohdr_t>();
 	else
 		studiohdr.FromS3(Reader.Read<s3studiohdr_t>());
@@ -698,7 +694,6 @@ std::unique_ptr<Assets::Model> RpakLib::ExtractModel(const RpakLoadAsset& Asset,
 	uint32_t TexturesCount = SkeletonHeader.numtextures;
 	uint32_t BoneRemapCount = SkeletonHeader.BoneRemapCount;
 	uint32_t BoneRemapOffset = SkeletonHeader.OffsetToBoneRemapInfo;
-
 
 	RpakStream->SetPosition(StudioOffset + TexturesOffset);
 
@@ -824,17 +819,17 @@ std::unique_ptr<Assets::Model> RpakLib::ExtractModel(const RpakLoadAsset& Asset,
 			vgOut.write(vgBuf, VGHeader.DataSize);
 			vgOut.close();
 
-			RpakStream->SetPosition(StudioOffset);
-
-			s3studiohdr_t hdr = Reader.Read<s3studiohdr_t>();
-
-			for (int i = 0; i < hdr.numtextures; i++)
-			{
-				mstudiotexturev54_t* mat = reinterpret_cast<mstudiotexturev54_t*>(studioBuf.get() + hdr.textureindex + (i * sizeof(mstudiotexturev54_t)));
-
-				//if(Assets.ContainsKey(mat->guid))
-				//	this->ExtractMaterial(Assets[mat->guid], Fixups.MaterialPath, IncludeMaterials, true);
-			}
+			//RpakStream->SetPosition(StudioOffset);
+			//
+			//s3studiohdr_t hdr = Reader.Read<s3studiohdr_t>();
+			//
+			//for (int i = 0; i < hdr.numtextures; i++)
+			//{
+			//	mstudiotexturev54_t* mat = reinterpret_cast<mstudiotexturev54_t*>(studioBuf.get() + hdr.textureindex + (i * sizeof(mstudiotexturev54_t)));
+			//
+			//	//if(Assets.ContainsKey(mat->guid))
+			//	//	this->ExtractMaterial(Assets[mat->guid], Fixups.MaterialPath, IncludeMaterials, true);
+			//}
 		}
 		else if (Asset.AssetVersion >= 12)
 		{
@@ -847,7 +842,7 @@ std::unique_ptr<Assets::Model> RpakLib::ExtractModel(const RpakLoadAsset& Asset,
 			if (dataSize < 32)
 			{
 				// here we go again
-				
+
 				StarpakStream->SetPosition(Offset);
 				auto vg = StarpakReader.Read<RMdlVGHeader>();
 
@@ -894,15 +889,14 @@ std::unique_ptr<Assets::Model> RpakLib::ExtractModel(const RpakLoadAsset& Asset,
 	// accept v9-v12.0 (v8 is vtx/vvd/vvc, v12.1+ is new VG)
 	bool useOldVg = (mdlHdr.version().major > 8 && mdlHdr.version().major < 12) || (mdlHdr.version().major == 12 && mdlHdr.version().minor == 0);
 
-	if (ModelFormat == ModelExportFormat_t::SMD) 
-		IncludeMaterials = false;
+	bool bExportAllMaterials = ExportManager::Config.GetBool("ModelMatExport") ? IncludeMaterials : false;
 
-	if(useOldVg)
-		this->ExtractModelLodOld(StarpakReader, RpakStream, ModelName, Offset, Model, Fixups, Asset.AssetVersion, IncludeMaterials);
+	if (useOldVg)
+		this->ExtractModelLodOld(StarpakReader, RpakStream, ModelName, Offset, Model, Fixups, Asset.AssetVersion, bExportAllMaterials);
 	else if (Asset.AssetVersion >= 14)
-		this->ExtractModelLod_V14(StarpakReader, RpakStream, ModelName, Offset, Model, Fixups, Asset.AssetVersion, IncludeMaterials);
+		this->ExtractModelLod_V14(StarpakReader, RpakStream, ModelName, Offset, Model, Fixups, Asset.AssetVersion, bExportAllMaterials);
 	else // v12.1-v13
-		this->ExtractModelLod(StarpakReader, RpakStream, ModelName, Offset, Model, Fixups, Asset.AssetVersion, IncludeMaterials);
+		this->ExtractModelLod(StarpakReader, RpakStream, ModelName, Offset, Model, Fixups, Asset.AssetVersion, bExportAllMaterials);
 
 	// write QC file when exporting as SMD
 	if (Path != "" && AnimPath != "" && ModelFormat == ModelExportFormat_t::SMD)
@@ -1740,7 +1734,6 @@ void RpakLib::ExtractModelLodOld(IO::BinaryReader& Reader, const std::unique_ptr
 
 			if ((Submesh.Flags1 & 0x5000) == 0x5000)
 			{
-
 				if (ExtendedWeights.Count() > 0)
 				{
 					//
@@ -1810,7 +1803,6 @@ void RpakLib::ExtractModelLodOld(IO::BinaryReader& Reader, const std::unique_ptr
 							Vertex.SetWeight({ BoneRemapBuffer[Weights.BlendIds[1]], ExternalWeights.SimpleWeights[1] }, 1);
 							Vertex.SetWeight({ BoneRemapBuffer[Weights.BlendIds[2]], ExternalWeights.SimpleWeights[2] }, 2);
 						}
-
 					}
 				}
 			}
@@ -1922,7 +1914,7 @@ List<Assets::Bone> RpakLib::ExtractSkeleton_V16(IO::BinaryReader& Reader, uint64
 	for (uint32_t i = 0; i < studiohdr.numbones; i++)
 	{
 		uint64_t Position = baseOffset + studiohdr.boneindex + (i * (sizeof(mstudiobone_t_v16)));
-		
+
 		RpakStream->SetPosition(Position);
 		mstudiobone_t_v16 bone = Reader.Read<mstudiobone_t_v16>();
 
