@@ -521,7 +521,7 @@ void RpakLib::ExportQC(const RpakLoadAsset& Asset, const string& Path, const str
 		if (bone.parent != -1)
 			BoneParentName = BoneNames[bone.parent];
 
-		qc.WriteFmt("$definebone \"%s\" \"%s\" %f %f %f %f %f %f 0 0 0 0 0 0\n", BoneName.c_str(), BoneParentName.c_str(), bone.pos.X, bone.pos.Y, bone.pos.Z, bone.rot.X, bone.rot.Y, bone.rot.Z);
+		qc.WriteFmt("$definebone \"%s\" \"%s\" %f %f %f %f %f %f 0 0 0 0 0 0\n", BoneName.c_str(), BoneParentName.c_str(), bone.pos.X, bone.pos.Y, bone.pos.Z, RadiansToDegrees(bone.rot.X), RadiansToDegrees(bone.rot.Y), RadiansToDegrees(bone.rot.Z));
 	}
 	qc.Write("\n");
 
