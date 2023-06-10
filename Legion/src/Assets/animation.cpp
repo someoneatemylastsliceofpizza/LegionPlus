@@ -670,18 +670,18 @@ void RpakLib::ExtractAnimation_V11(const RpakLoadAsset& Asset, const List<Assets
 				// Nothing here
 				goto nomedian;
 			}
-			else if (sectionFrameIdx >= animdesc.unk2)
+			else if (sectionFrameIdx >= animdesc.sectionstaticframes)
 			{
-				uint32_t sectionFrameMinusSplitCount = sectionFrameIdx - animdesc.unk2; // I don't really know what unk2 is for but porter uses it so *shrug*
-				if (animdesc.numframes <= animdesc.unk2 || sectionFrameIdx != animdesc.numframes - 1)
+				uint32_t sectionFrameMinusSplitCount = sectionFrameIdx - animdesc.sectionstaticframes; // I don't really know what unk2 is for but porter uses it so *shrug*
+				if (animdesc.numframes <= animdesc.sectionstaticframes || sectionFrameIdx != animdesc.numframes - 1)
 				{
 					sectionIdx = sectionFrameMinusSplitCount / animdesc.sectionframes + 1;
-					sectionFrameIdx = sectionFrameIdx - (animdesc.sectionframes * (sectionFrameMinusSplitCount / animdesc.sectionframes)) - animdesc.unk2;
+					sectionFrameIdx = sectionFrameIdx - (animdesc.sectionframes * (sectionFrameMinusSplitCount / animdesc.sectionframes)) - animdesc.sectionstaticframes;
 				}
 				else
 				{
 					sectionFrameIdx = 0;
-					sectionIdx = (animdesc.numframes - animdesc.unk2 - 1) / animdesc.sectionframes + 2;
+					sectionIdx = (animdesc.numframes - animdesc.sectionstaticframes - 1) / animdesc.sectionframes + 2;
 				}
 			}
 
@@ -839,7 +839,7 @@ void RpakLib::ExportAnimationSeq(const RpakLoadAsset& Asset, const string& Path)
 	uint64_t ReadValue = 0;
 	while (true)
 	{
-		RpakStream->SetPosition(AnimationOffset + seqdesc.szlabelindex + ReadValue);
+		RpakStream->SetPosition(AnimationOffset + FIX_OFFSET(seqdesc.szlabelindex) + ReadValue);
 
 		Reader.Read(stringreadBuf, 0, 3);
 
@@ -850,6 +850,140 @@ void RpakLib::ExportAnimationSeq(const RpakLoadAsset& Asset, const string& Path)
 	};
 
 	delete[] stringreadBuf;
+
+	if (Asset.AssetVersion == 11)
+	{
+		uint64_t oldpos = RpakStream->GetPosition();
+		uint64_t newpos = 0;
+
+		const int numbones = (seqdesc.activitymodifierindex - seqdesc.weightlistindex) / 4;
+
+		const int blendcount = seqdesc.groupsize[0] * seqdesc.groupsize[1];
+		std::vector<short> AnimIndexes(blendcount);
+
+		for (int i = 0; i < blendcount; i++)
+		{
+			RpakStream->SetPosition(AnimationOffset + seqdesc.animindexindex + (i * sizeof(short)));
+			AnimIndexes[i] = Reader.Read<short>();
+		}
+
+		for (int i = 0; i < blendcount; i++)
+		{
+			uint32_t index = AnimationOffset + AnimIndexes[i];
+			RpakStream->SetPosition(index);
+			mstudioanimdescv54_t_v16 animdesc = Reader.Read<mstudioanimdescv54_t_v16>();
+
+			if (animdesc.flags & STUDIO_ALLZEROS)
+				continue;
+
+			int flagSize = ((4 * numbones + 7) / 8 + 1) & 0xFFFFFFFE;
+
+
+
+			if (animdesc.sectionindex)
+			{
+				const uint64_t sectionoffset = index + animdesc.sectionindex;
+				const int sectionlength = ceil(((float)animdesc.numframes - 1) / (float)animdesc.sectionframes) + 1;
+				RpakStream->SetPosition(sectionoffset);
+
+				std::vector<int> sectionindexes(sectionlength);
+				{
+					for (int j = 0; j < sectionlength; j++)
+						sectionindexes[j] = Reader.Read<int>();
+				}
+
+				
+
+				for (int o = 0; o < sectionlength; o++)
+				{
+					int animationSize = 0;
+
+					if (animdesc.flags & 0x20000)
+					{
+						RpakStream->SetPosition(index + sectionindexes[o] + flagSize + animationSize);
+
+						for (int i = 0; i < flagSize; i++)
+						{
+							mstudio_rle_anim_t pOldRleAnim = Reader.Read<mstudio_rle_anim_t>();
+
+							animationSize += pOldRleAnim.size;
+						}
+
+						newpos = RpakStream->GetPosition();
+					}
+
+				}
+			}
+			else
+			{
+				RpakStream->SetPosition(index + animdesc.animindex);
+
+				std::vector<uint8_t> Flags(flagSize);
+				{
+					for (int i = 0; i < flagSize; i++)
+						Flags[i] = Reader.Read<uint8_t>();
+				}
+
+				RpakStream->SetPosition(index + animdesc.animindex + flagSize);
+
+				uint64_t animationSize = 0;
+
+				for (int i = 0; i < flagSize; i++)
+				{
+					if (Flags[i] != 0)
+					{
+						mstudio_rle_anim_t pOldRleAnim = Reader.Read<mstudio_rle_anim_t>();
+						animationSize += pOldRleAnim.size;
+					}
+				}
+
+				RpakStream->SetPosition(index + animdesc.animindex + flagSize + animationSize);
+			}
+
+			if (animdesc.framemovementindex)
+			{
+				RpakStream->SetPosition(index + animdesc.framemovementindex);
+				mstudioframemovement_t_v54 framemov = Reader.Read<mstudioframemovement_t_v54>();
+
+				const int numsections = ceil((float)animdesc.numframes / (float)framemov.sectionframes);
+
+				std::vector<short> sectionindexes(numsections);
+				{
+					for (int j = 0; j < numsections; j++)
+						sectionindexes[j] = Reader.Read<short>();
+				}
+
+				for (int j = 0; j < numsections; j++)
+				{
+					RpakStream->SetPosition(index + animdesc.framemovementindex + sectionindexes[j]);
+					uint64_t offset = RpakStream->GetPosition();
+
+					std::vector<short> offsets(4);
+					{
+						for (int j = 0; j < 4; j++)
+							offsets[j] = Reader.Read<short>();
+					}
+
+					for (int g = 0; g < 4; g++)
+					{
+						if (offsets[g])
+						{
+							RpakStream->SetPosition(offset + (g * sizeof(short)) + offsets[g]);
+							mstudioanimvalue_t animvalue = Reader.Read<mstudioanimvalue_t>();
+						}
+					}
+				}
+
+			}
+
+
+
+			if (newpos > oldpos)
+				RpakStream->SetPosition(newpos);
+		}
+
+
+	}
 
 	uint64_t RSeqSize = RpakStream->GetPosition() - AnimationOffset;
 

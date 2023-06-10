@@ -239,36 +239,22 @@ struct mstudioseqdesc_t_v16
 
 	byte fill[4];
 
-	// stuff is different after this
-	/*
-	short localentrynode; // transition node at entry
-	short localexitnode; // transition node at exit
-	short nodeflags; // transition rules
-
-	float entryphase; // used to match entry gait
-	float exitphase; // used to match exit gait
-
-	float lastframe; // frame that should generation EndOfSequence
-
-	short nextseq; // auto advancing sequences
-	short pose; // index of delta animation between end and nextseq*/
-
 	short numikrules;
 
 	short numautolayers;
-	uint16 autolayerindex;
+	unsigned short autolayerindex;
 
-	uint16 weightlistindex;
+	unsigned short weightlistindex;
 
 	byte groupsize[2];
 
-	uint16 posekeyindex;
+	unsigned short posekeyindex;
 
 	short numiklocks;
 	short iklockindex;
 
 	// Key values
-	uint16 keyvalueindex;
+	unsigned short keyvalueindex;
 	short keyvaluesize;
 
 	//short cycleposeindex; // index of pose parameter to use as cycle index
@@ -276,10 +262,10 @@ struct mstudioseqdesc_t_v16
 	short activitymodifierindex;
 	short numactivitymodifiers;
 
-	int unk;
+	int ikResetMask; // new in v52
 	int unk1;
 
-	uint16 unkindex;
+	unsigned short unkindex;
 	short unkcount;
 };
 
@@ -394,7 +380,7 @@ struct mstudioseqdesc_t
 		Out.keyvaluesize = this->keyvaluesize;
 		Out.activitymodifierindex = this->activitymodifierindex;
 		Out.numactivitymodifiers = this->numactivitymodifiers;
-		Out.unk = this->unk;
+		Out.ikResetMask = this->unk;
 		Out.unk1 = this->unk1;
 		Out.unkindex = this->unkindex;
 
@@ -402,28 +388,41 @@ struct mstudioseqdesc_t
 	}
 };
 
+// basically compressedikerrors and frame movements will have an array of offsets that leads into the traditional 'short offset' array, allowing it to have per section (if the anim uses sections) data
+struct mstudioframemovement_t_v54
+{
+	float scale[4]; // first three values are the same as what posscale (if it was used) is, fourth is similar to unkvector1.
+	int sectionframes; // frames per section, may not match animdesc
+	// may have more than one, even when not section anim
+};
+
 struct mstudioanimdescv54_t_v16
 {
-	float fps; // frames per second	
+	float fps; // frames per second
 	int flags; // looping/non-looping flags
-	int16_t numframes;
+
+	short numframes;
 
 	// piecewise movement
 	//short nummovements;
 	//short movementindex;
 
-	int16_t unk_v16;
-	uint16_t sznameindex;
-	uint16_t compressedikerrorindex;
+	short unk_v16;
+
+	short sznameindex;
+
+	unsigned short framemovementindex; // new in v52
 
 	int animindex; // non-zero when anim data isn't in sections
 
-	int16_t numikrules;
-	uint16_t ikruleindex; // non-zero when IK data is stored in the mdl
-	uint16_t unk1[5];
-	uint16_t sectionindex;
-	uint16_t unk2; // what, obviously section related as it's wedged between sectionindex and sectiom frames
-	uint16_t sectionframes; // number of frames used in each fast lookup section, zero if not used
+	short numikrules;
+	unsigned short ikruleindex; // non-zero when IK data is stored in the mdl
+
+	short unk1[5];
+
+	short sectionindex;
+	short sectionstaticframes; // number of static frames inside the animation, the reset excluding the final frame are stored externally. when external data is not loaded(?)/found(?) it falls back on the last frame of this as a stall
+	short sectionframes; // number of frames used in each fast lookup section, zero if not used
 };
 
 // rseq v7.1
@@ -470,7 +469,7 @@ struct mstudioanimdescv54_t_v121
 		out.flags = this->flags;
 		out.numframes = this->numframes;
 		out.sznameindex = this->sznameindex;
-		out.compressedikerrorindex = this->compressedikerrorindex;
+		out.framemovementindex = this->compressedikerrorindex;
 		out.animindex = this->animindex;
 		out.numikrules = this->numikrules;
 		out.ikruleindex = this->ikruleindex;
@@ -515,7 +514,7 @@ struct mstudioanimdescv54_t
 		out.flags = this->flags;
 		out.numframes = this->numframes;
 		out.sznameindex = this->sznameindex;
-		out.compressedikerrorindex = this->compressedikerrorindex;
+		out.framemovementindex = this->compressedikerrorindex;
 		out.animindex = this->animindex;
 		out.numikrules = this->numikrules;
 		out.ikruleindex = this->ikruleindex;
@@ -564,6 +563,10 @@ struct mstudioanimsectionsv54_t_v121
 	int isExternal; // 0 or 1, if 1 section is not in rseq (I think)
 };
 
+struct mstudioanimsections_t_v16
+{
+	int animindex;  // negative number if external
+};
 
 // rle anim flags
 #define STUDIO_ANIM_SCALE 1
