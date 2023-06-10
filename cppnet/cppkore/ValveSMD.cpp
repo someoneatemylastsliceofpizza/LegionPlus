@@ -167,7 +167,7 @@ namespace Assets::Exporters
 			for (auto& Face : Submesh.Faces)
 			{
 				if (Submesh.MaterialIndices[0] > -1)
-					Writer.WriteLine((Model.Materials[Submesh.MaterialIndices[0]].Name));
+					Writer.WriteLine(IO::Path::GetFileNameWithoutExtension(Model.Materials[Submesh.MaterialIndices[0]].Name));
 				else
 					Writer.WriteLine("default_material");
 

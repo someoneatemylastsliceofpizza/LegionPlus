@@ -467,34 +467,20 @@ void RpakLib::ExportQC(const RpakLoadAsset& Asset, const string& Path, const str
 		//}
 		//qc.Write("//}\n\n");
 
+
 		List<std::string> ValidTextures{};
+
 		for (Assets::Mesh& Submesh : Model->Meshes)
 		{
 			for (Assets::Face& Face : Submesh.Faces)
 			{
 				if (Submesh.MaterialIndices[0] > -1)
 				{
-					int materialindex = Submesh.MaterialIndices[0];
-					string SubMeshTextureName = Model->Materials[materialindex].Name.ToLower();
+					string Texture = Model->Materials[Submesh.MaterialIndices[0]].Name;
 
-					for (int i = 0; i < TextureNames.size(); i++)
-					{
-						string Texture = TextureNames[i];
-
-						if (ValidTextures.Contains(Texture.ToCString()))
-							continue;
-
-						bool bIsSubmeshMaterial = Texture.Contains(SubMeshTextureName);
-
-						if (!bIsSubmeshMaterial)
-							continue;
-
-						bool bExistsInValidList = ValidTextures.Contains(Texture.ToLower().ToCString());
-
-						if (!bExistsInValidList)
-							ValidTextures.EmplaceBack(Texture.ToCString());
-					}
-				}
+					if (!ValidTextures.Contains(Texture.ToCString()))
+						ValidTextures.EmplaceBack(Texture.ToCString());
+				}	
 			}
 		}
 

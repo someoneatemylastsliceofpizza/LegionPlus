@@ -414,7 +414,7 @@ std::unique_ptr<Assets::Model> RpakLib::ExtractModel_V16(const RpakLoadAsset& As
 			RpakLoadAsset& MaterialAsset = Assets[material.guid];
 
 			RMdlMaterial ParsedMaterial = this->ExtractMaterial(MaterialAsset, TexturePath, false, false);
-			uint32_t MaterialIndex = Model->AddMaterial(ParsedMaterial.MaterialName, ParsedMaterial.AlbedoHash);
+			uint32_t MaterialIndex = Model->AddMaterial(ModelFormat == ModelExportFormat_t::SMD ? ParsedMaterial.FullMaterialName : ParsedMaterial.MaterialName, ParsedMaterial.AlbedoHash);
 
 			material.name = ParsedMaterial.MaterialName;
 
@@ -914,6 +914,9 @@ void RpakLib::ExtractModelLod_V16(IO::BinaryReader& Reader, const std::unique_pt
 		g_Logger.Warning("!!! - Failed to extract Model LOD for %s. BaseStream was NULL (you probably don't have the required starpak)\n", Name.ToCString());
 		return;
 	}
+
+	auto ModelFormat = (ModelExportFormat_t)ExportManager::Config.Get<System::SettingType::Integer>("ModelFormat");
+
 	VGHeader_t_v16 vg = Reader.Read<VGHeader_t_v16>();
 
 	if (!vg.nummeshes)
@@ -1094,6 +1097,8 @@ void RpakLib::ExtractModelLod_V14(IO::BinaryReader& Reader, const std::unique_pt
 		g_Logger.Warning("!!! - Failed to extract Model LOD for %s. BaseStream was NULL (you probably don't have the required starpak)\n", Name.ToCString());
 		return;
 	}
+
+	auto ModelFormat = (ModelExportFormat_t)ExportManager::Config.Get<System::SettingType::Integer>("ModelFormat");
 
 	BaseStream->SetPosition(Offset);
 
@@ -1317,7 +1322,7 @@ void RpakLib::ExtractModelLod_V14(IO::BinaryReader& Reader, const std::unique_pt
 			RpakLoadAsset& MaterialAsset = Assets[Material.guid];
 
 			RMdlMaterial ParsedMaterial = this->ExtractMaterial(MaterialAsset, Fixup.MaterialPath, IncludeMaterials, false);
-			uint32_t MaterialIndex = Model->AddMaterial(ParsedMaterial.MaterialName, ParsedMaterial.AlbedoHash);
+			uint32_t MaterialIndex = Model->AddMaterial(ModelFormat == ModelExportFormat_t::SMD ? ParsedMaterial.FullMaterialName : ParsedMaterial.MaterialName, ParsedMaterial.AlbedoHash);
 
 			Assets::Material& MaterialInstance = Model->Materials[MaterialIndex];
 
@@ -1360,6 +1365,8 @@ void RpakLib::ExtractModelLod(IO::BinaryReader& Reader, const std::unique_ptr<IO
 		g_Logger.Warning("!!! - Failed to extract Model LOD for %s. BaseStream was NULL (you probably don't have the required starpak)\n", Name.ToCString());
 		return;
 	}
+
+	auto ModelFormat = (ModelExportFormat_t)ExportManager::Config.Get<System::SettingType::Integer>("ModelFormat");
 
 	BaseStream->SetPosition(Offset);
 
@@ -1574,7 +1581,7 @@ void RpakLib::ExtractModelLod(IO::BinaryReader& Reader, const std::unique_ptr<IO
 			RpakLoadAsset& MaterialAsset = Assets[Material.guid];
 
 			RMdlMaterial ParsedMaterial = this->ExtractMaterial(MaterialAsset, Fixup.MaterialPath, IncludeMaterials, false);
-			uint32_t MaterialIndex = Model->AddMaterial(ParsedMaterial.MaterialName, ParsedMaterial.AlbedoHash);
+			uint32_t MaterialIndex = Model->AddMaterial(ModelFormat == ModelExportFormat_t::SMD ? ParsedMaterial.FullMaterialName : ParsedMaterial.MaterialName, ParsedMaterial.AlbedoHash);
 
 			Assets::Material& MaterialInstance = Model->Materials[MaterialIndex];
 
@@ -1617,6 +1624,8 @@ void RpakLib::ExtractModelLodOld(IO::BinaryReader& Reader, const std::unique_ptr
 		g_Logger.Warning("!!! - Failed to extract Model LOD for %s. BaseStream was NULL (you probably don't have the required starpak)\n", Name.ToCString());
 		return;
 	}
+
+	auto ModelFormat = (ModelExportFormat_t)ExportManager::Config.Get<System::SettingType::Integer>("ModelFormat");
 
 	BaseStream->SetPosition(Offset);
 
@@ -1837,7 +1846,7 @@ void RpakLib::ExtractModelLodOld(IO::BinaryReader& Reader, const std::unique_ptr
 			auto& MaterialAsset = Assets[Material.guid];
 
 			auto ParsedMaterial = this->ExtractMaterial(MaterialAsset, Fixup.MaterialPath, IncludeMaterials, false);
-			auto MaterialIndex = Model->AddMaterial(ParsedMaterial.MaterialName, ParsedMaterial.AlbedoHash);
+			auto MaterialIndex = Model->AddMaterial(ModelFormat == ModelExportFormat_t::SMD ? ParsedMaterial.FullMaterialName : ParsedMaterial.MaterialName, ParsedMaterial.AlbedoHash);
 
 			auto& MaterialInstance = Model->Materials[MaterialIndex];
 
