@@ -480,17 +480,19 @@ void RpakLib::ExportQC(const RpakLoadAsset& Asset, const string& Path, const str
 					for (int i = 0; i < TextureNames.size(); i++)
 					{
 						string Texture = TextureNames[i];
+
+						if (ValidTextures.Contains(Texture.ToCString()))
+							continue;
+
 						bool bIsSubmeshMaterial = Texture.Contains(SubMeshTextureName);
 
 						if (!bIsSubmeshMaterial)
 							continue;
 
-						bool bExistsInValidList = ValidTextures.Contains(TextureNames[i].ToLower().ToCString());
+						bool bExistsInValidList = ValidTextures.Contains(Texture.ToLower().ToCString());
 
 						if (!bExistsInValidList)
-							ValidTextures.EmplaceBack(TextureNames[i].ToCString());
-
-						break;
+							ValidTextures.EmplaceBack(Texture.ToCString());
 					}
 				}
 			}
