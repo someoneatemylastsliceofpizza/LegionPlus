@@ -235,7 +235,7 @@ void ExportManager::ExportRpakAssets(const std::unique_ptr<RpakLib>& RpakFileSys
 				RpakFileSystem->ExportRUI(AssetToExport, IO::Path::Combine(ExportDirectory, "rui"));
 				break;
 			case (uint32_t)AssetType_t::Wrap:
-				RpakFileSystem->ExportWrap(AssetToExport, IO::Path::Combine(ExportDirectory, "scripts"));
+				RpakFileSystem->ExportWrap(AssetToExport, IO::Path::Combine(ExportDirectory, "wraps"));
 				break;
 			}
 
