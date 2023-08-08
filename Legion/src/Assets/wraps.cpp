@@ -79,6 +79,8 @@ void RpakLib::ExportWrap(const RpakLoadAsset& Asset, const string& Path)
 		std::ofstream out(DestinationPath, std::ios::out | std::ios::binary);
 		out.write((char*)outBuf, cmpSize);
 		out.close();
+
+		delete[] outBuf;
 	}
 	else
 	{
