@@ -14,12 +14,10 @@ void RpakLib::BuildWrapInfo(const RpakLoadAsset& Asset, ApexAsset& Info)
 
 	RpakFile& File = this->LoadedFiles[Asset.FileIndex];
 
+	RpakStream->SetPosition(this->GetFileOffset(Asset, WrapHdr.NameSegmentIndex, WrapHdr.NameOffset));
 
-	auto CPUBLOCK = File.SegmentBlocks[0];
+	uint64_t pos = RpakStream->GetPosition();
 
-	uint64_t StringDataBlock = this->GetFileOffset(Asset, 0, CPUBLOCK.Offset);
-
-	RpakStream->SetPosition(StringDataBlock + WrapHdr.CpuFullPathOffset);
 
 	Info.Name = Reader.ReadCString();
 

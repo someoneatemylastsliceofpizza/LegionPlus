@@ -177,13 +177,17 @@ struct RUIImage
 
 struct WrapHeader
 {
-	uint32_t Unk;
-	uint32_t CpuFullPathOffset; // filesize?
-	uint32_t FileIndex;
-	uint32_t Unk2;
-	uint32_t Unk3;
-	uint32_t Unk4;
+	uint32_t NameSegmentIndex;
+	uint32_t NameOffset;
+	uint32_t DataSegmentIndex;
+	uint32_t DataSegmentOffset;
+	uint16_t Unk3;
+	uint16_t Unk4;
 	uint32_t Unk5;
+	uint16_t Unk6[2];
+	uint16_t Unk7[2];
+	uint16_t Unk8[2];
+	uint32_t Unk9;
 };
 
 // --- dtbl ---
