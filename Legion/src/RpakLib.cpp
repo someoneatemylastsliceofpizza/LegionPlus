@@ -242,6 +242,9 @@ std::unique_ptr<List<ApexAsset>> RpakLib::BuildAssetList(const std::array<bool, 
 		case (uint32_t)AssetType_t::Map:
 			BuildMapInfo(Asset, NewAsset);
 			break;
+		case (uint32_t)AssetType_t::Wrap:
+			BuildWrapInfo(Asset, NewAsset);
+			break;
 		default:
 			continue;
 		}
@@ -665,6 +668,7 @@ bool RpakLib::ValidateAssetPatchStatus(const RpakLoadAsset& Asset)
 		case (uint32_t)AssetType_t::RSON:
 		case (uint32_t)AssetType_t::RUI:
 		case (uint32_t)AssetType_t::Map:
+		case (uint32_t)AssetType_t::Wrap:
 			return true;
 		default:
 			return false;

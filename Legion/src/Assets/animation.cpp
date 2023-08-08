@@ -969,7 +969,7 @@ void RpakLib::ExportAnimationSeq(const RpakLoadAsset& Asset, const string& Path)
 						if (offsets[g])
 						{
 							RpakStream->SetPosition(offset + (g * sizeof(short)) + offsets[g]);
-							mstudioanimvalue_t animvalue = Reader.Read<mstudioanimvalue_t>();
+							//mstudioanimvalue_t an imvalue = Reader.Read<mstudioanimvalue_t>();
 						}
 					}
 				}

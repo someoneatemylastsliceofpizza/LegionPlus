@@ -317,6 +317,7 @@ enum class AssetType_t : uint32_t
 	RUI = 'iu', // ui - 0x75690000
 	Map = 'pamr', // rmap - 0x70616D72
 	Effect = 'tcfe', // efct - 0x74636665
+	Wrap = 'parw' //Wrap - 0x70617277
 };
 
 enum class ModelExportFormat_t
@@ -460,6 +461,7 @@ public:
 	void ExportRSON(const RpakLoadAsset& Asset, const string& Path);
 	void ExportQC(const RpakLoadAsset& asset, const string& Path, const string& modelPath, const std::unique_ptr<Assets::Model>& Model, char* rmdlBuf, char* phyBuf);
 	void ExportRUI(const RpakLoadAsset& Asset, const string& Path);
+	void ExportWrap(const RpakLoadAsset& Asset, const string& Path);
 
 	List<List<DataTableColumnData>> ExtractDataTable(const RpakLoadAsset& Asset);
 	List<ShaderVar> ExtractShaderVars(const RpakLoadAsset& Asset, const std::string& CBufName = "", D3D_SHADER_VARIABLE_TYPE Type = D3D_SVT_FORCE_DWORD); // default value as a type that should never be used
@@ -510,6 +512,7 @@ private:
 	void BuildSettingsLayoutInfo(const RpakLoadAsset& Asset, ApexAsset& Info);
 	void BuildRSONInfo(const RpakLoadAsset& Asset, ApexAsset& Info);
 	void BuildRUIInfo(const RpakLoadAsset& Asset, ApexAsset& Info);
+	void BuildWrapInfo(const RpakLoadAsset& Asset, ApexAsset& Info);
 
 	std::unique_ptr<Assets::Model> ExtractModel(const RpakLoadAsset& Asset, const string& Path, const string& AnimPath, bool IncludeMaterials, bool IncludeAnimations);
 	std::unique_ptr<Assets::Model> ExtractModel_V16(const RpakLoadAsset& Asset, const string& Path, const string& AnimPath, bool IncludeMaterials, bool IncludeAnimations);

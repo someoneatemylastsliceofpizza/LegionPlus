@@ -175,6 +175,17 @@ struct RUIImage
 	uint32_t Zero2[0x2];
 };
 
+struct WrapHeader
+{
+	uint32_t Unk;
+	uint32_t CpuFullPathOffset; // filesize?
+	uint32_t FileIndex;
+	uint32_t Unk2;
+	uint32_t Unk3;
+	uint32_t Unk4;
+	uint32_t Unk5;
+};
+
 // --- dtbl ---
 enum DataTableColumnDataType
 {
