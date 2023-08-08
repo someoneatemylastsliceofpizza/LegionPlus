@@ -55,7 +55,7 @@ void RpakLib::ExportWrap(const RpakLoadAsset& Asset, const string& Path)
 	Reader.Read(buffer, 0, WrapHdr.DataSize);
 
 	std::ofstream out(DestinationPath, std::ios::out | std::ios::binary);
-	out.write(buffer, WrapHdr.DataSize);
+	out.write(buffer, WrapHdr.DataSize - 1);
 	out.close();
 
 
