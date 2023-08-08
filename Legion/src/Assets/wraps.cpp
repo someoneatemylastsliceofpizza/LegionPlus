@@ -61,23 +61,23 @@ void RpakLib::ExportWrap(const RpakLoadAsset& Asset, const string& Path)
 	bool IsCompressed = Reader.Read<uint16_t>() == 0xC8C;
 	RpakStream->SetPosition(datapos);
 
+	uint64_t Size = WrapHdr.DataSize - 1;
+
 	if (IsCompressed)
 	{
-		uint64_t cmpSize = WrapHdr.DataSize;
+		uint8_t* tmpCmpBuf = new uint8_t[Size];
 
-		uint8_t* tmpCmpBuf = new uint8_t[cmpSize];
-
-		Reader.Read(tmpCmpBuf, 0, WrapHdr.DataSize);
+		Reader.Read(tmpCmpBuf, 0, Size);
 
 		// read into vg stream and decompress
-		auto DecompStream = RTech::DecompressStreamedBuffer(tmpCmpBuf, cmpSize, (uint8_t)CompressionType::OODLE);
+		auto DecompStream = RTech::DecompressStreamedBuffer(tmpCmpBuf, Size, (uint8_t)CompressionType::OODLE);
 
-		uint8_t* outBuf = new uint8_t[cmpSize];
+		uint8_t* outBuf = new uint8_t[Size];
 
-		DecompStream->Read(outBuf, 0, cmpSize);
+		DecompStream->Read(outBuf, 0, Size);
 
 		std::ofstream out(DestinationPath, std::ios::out | std::ios::binary);
-		out.write((char*)outBuf, cmpSize);
+		out.write((char*)outBuf, Size);
 		out.close();
 
 		DecompStream.release();
@@ -86,12 +86,12 @@ void RpakLib::ExportWrap(const RpakLoadAsset& Asset, const string& Path)
 	}
 	else
 	{
-		char* buffer = new char[WrapHdr.DataSize];
+		char* buffer = new char[Size];
 
-		Reader.Read(buffer, 0, WrapHdr.DataSize);
+		Reader.Read(buffer, 0, Size);
 
 		std::ofstream out(DestinationPath, std::ios::out | std::ios::binary);
-		out.write(buffer, WrapHdr.DataSize - 1);
+		out.write(buffer, Size);
 		out.close();
 
 		delete[] buffer;
