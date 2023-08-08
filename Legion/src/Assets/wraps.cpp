@@ -23,9 +23,14 @@ void RpakLib::BuildWrapInfo(const RpakLoadAsset& Asset, ApexAsset& Info)
 	if (!ExportManager::Config.GetBool("UseFullPaths"))
 		Info.Name = IO::Path::GetFileNameWithoutExtension(Info.Name).ToLower();
 
+	RpakStream->SetPosition(this->GetFileOffset(Asset, WrapHdr.DataIndex, WrapHdr.DataOffset));
+
+	bool IsCompressed = Reader.Read<uint16_t>() == 0xC8C;
+
+	Info.Info = IsCompressed ? "Compressed" : "N/A";
+
 	Info.Type = ApexAssetType::Wrap;
 	Info.Status = ApexAssetStatus::Loaded;
-	Info.Info = "N/A";
 }
 
 void RpakLib::ExportWrap(const RpakLoadAsset& Asset, const string& Path)
@@ -57,7 +62,6 @@ void RpakLib::ExportWrap(const RpakLoadAsset& Asset, const string& Path)
 	std::ofstream out(DestinationPath, std::ios::out | std::ios::binary);
 	out.write(buffer, WrapHdr.DataSize - 1);
 	out.close();
-
 
 	delete[] buffer;
 };
