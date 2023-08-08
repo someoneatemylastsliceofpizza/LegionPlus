@@ -2,6 +2,7 @@
 #include "RpakLib.h"
 #include "Path.h"
 #include "Directory.h"
+#include "rtech.h"
 
 string StripName(string name)
 {
@@ -54,14 +55,41 @@ void RpakLib::ExportWrap(const RpakLoadAsset& Asset, const string& Path)
 	if (!Utils::ShouldWriteFile(DestinationPath))
 		return;
 
-	RpakStream->SetPosition(this->GetFileOffset(Asset, WrapHdr.DataIndex, WrapHdr.DataOffset));
-	char* buffer = new char[WrapHdr.DataSize];
+	uint64_t datapos = this->GetFileOffset(Asset, WrapHdr.DataIndex, WrapHdr.DataOffset);
 
-	Reader.Read(buffer, 0, WrapHdr.DataSize);
+	RpakStream->SetPosition(datapos);
+	bool IsCompressed = Reader.Read<uint16_t>() == 0xC8C;
+	RpakStream->SetPosition(datapos);
 
-	std::ofstream out(DestinationPath, std::ios::out | std::ios::binary);
-	out.write(buffer, WrapHdr.DataSize - 1);
-	out.close();
+	if (IsCompressed)
+	{
+		uint64_t cmpSize = WrapHdr.DataSize;
 
-	delete[] buffer;
+		uint8_t* tmpCmpBuf = new uint8_t[cmpSize];
+
+		Reader.Read(tmpCmpBuf, 0, WrapHdr.DataSize);
+
+		// read into vg stream and decompress
+		auto DecompStream = RTech::DecompressStreamedBuffer(tmpCmpBuf, cmpSize, (uint8_t)CompressionType::OODLE);
+
+		uint8_t* outBuf = new uint8_t[cmpSize];
+
+		DecompStream->Read(outBuf, 0, cmpSize);
+
+		std::ofstream out(DestinationPath, std::ios::out | std::ios::binary);
+		out.write((char*)outBuf, cmpSize);
+		out.close();
+	}
+	else
+	{
+		char* buffer = new char[WrapHdr.DataSize];
+
+		Reader.Read(buffer, 0, WrapHdr.DataSize);
+
+		std::ofstream out(DestinationPath, std::ios::out | std::ios::binary);
+		out.write(buffer, WrapHdr.DataSize - 1);
+		out.close();
+
+		delete[] buffer;
+	}
 };
