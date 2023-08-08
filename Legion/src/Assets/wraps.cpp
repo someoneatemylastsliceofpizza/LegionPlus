@@ -80,6 +80,8 @@ void RpakLib::ExportWrap(const RpakLoadAsset& Asset, const string& Path)
 		out.write((char*)outBuf, cmpSize);
 		out.close();
 
+		DecompStream.release();
+
 		delete[] outBuf;
 	}
 	else
