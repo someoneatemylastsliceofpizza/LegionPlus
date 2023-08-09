@@ -18,15 +18,13 @@ void RpakLib::BuildWrapInfo(const RpakLoadAsset& Asset, ApexAsset& Info)
 	WrapHeader WrapHdr = Reader.Read<WrapHeader>();
 
 	// name
-	RpakStream->SetPosition(this->GetFileOffset(Asset, WrapHdr.NameIndex, WrapHdr.NameOffset));
+	RpakStream->SetPosition(this->GetFileOffset(Asset, WrapHdr.Name.Index, WrapHdr.Name.Offset));
 	Info.Name = StripName(Reader.ReadCString());
 
 	if (!ExportManager::Config.GetBool("UseFullPaths"))
 		Info.Name = IO::Path::GetFileNameWithoutExtension(Info.Name).ToLower();
 
-	RpakStream->SetPosition(this->GetFileOffset(Asset, WrapHdr.DataIndex, WrapHdr.DataOffset));
-
-	bool IsCompressed = Reader.Read<uint16_t>() == 0xC8C;
+	bool IsCompressed = WrapHdr.flags & 1;
 
 	Info.Info = IsCompressed ? "Compressed" : "N/A";
 
@@ -43,7 +41,7 @@ void RpakLib::ExportWrap(const RpakLoadAsset& Asset, const string& Path)
 	WrapHeader WrapHdr = Reader.Read<WrapHeader>();
 
 	// name
-	RpakStream->SetPosition(this->GetFileOffset(Asset, WrapHdr.NameIndex, WrapHdr.NameOffset));
+	RpakStream->SetPosition(this->GetFileOffset(Asset, WrapHdr.Name.Index, WrapHdr.Name.Offset));
 	string name = StripName(Reader.ReadCString());
 
 	string dirpath = IO::Path::Combine(Path, IO::Path::GetDirectoryName(name));
@@ -55,45 +53,43 @@ void RpakLib::ExportWrap(const RpakLoadAsset& Asset, const string& Path)
 	if (!Utils::ShouldWriteFile(DestinationPath))
 		return;
 
-	uint64_t datapos = this->GetFileOffset(Asset, WrapHdr.DataIndex, WrapHdr.DataOffset);
+	RpakStream->SetPosition(this->GetFileOffset(Asset, WrapHdr.Data.Index, WrapHdr.Data.Offset));
 
-	RpakStream->SetPosition(datapos);
-	bool IsCompressed = Reader.Read<uint16_t>() == 0xC8C;
-	RpakStream->SetPosition(datapos);
+	std::ofstream out(DestinationPath, std::ios::out | std::ios::binary);
 
-	uint64_t Size = WrapHdr.DataSize - 1;
+	bool IsCompressed = WrapHdr.flags & 1;
 
-	if (IsCompressed)
+	if ((WrapHdr.flags & 0x10) == 0)
 	{
-		uint8_t* tmpCmpBuf = new uint8_t[Size];
+		if (IsCompressed)
+		{
+			uint64_t Size = WrapHdr.dcmpSize;
+			uint8_t* tmpCmpBuf = new uint8_t[Size];
 
-		Reader.Read(tmpCmpBuf, 0, Size);
+			Reader.Read(tmpCmpBuf, 0, Size);
 
-		// read into vg stream and decompress
-		auto DecompStream = RTech::DecompressStreamedBuffer(tmpCmpBuf, Size, (uint8_t)CompressionType::OODLE);
+			auto DecompStream = RTech::DecompressStreamedBuffer(tmpCmpBuf, Size, (uint8_t)CompressionType::OODLE);
 
-		uint8_t* outBuf = new uint8_t[Size];
+			uint8_t* outBuf = new uint8_t[WrapHdr.dcmpSize];
+			DecompStream->Read(outBuf, 0, WrapHdr.dcmpSize);
 
-		DecompStream->Read(outBuf, 0, Size);
+			std::ofstream out(DestinationPath, std::ios::out | std::ios::binary);
+			out.write((char*)outBuf, WrapHdr.dcmpSize);
 
-		std::ofstream out(DestinationPath, std::ios::out | std::ios::binary);
-		out.write((char*)outBuf, Size);
-		out.close();
+			DecompStream.release();
+			delete[] outBuf;
+		}
+		else
+		{
+			char* buffer = new char[WrapHdr.dcmpSize];
 
-		DecompStream.release();
+			Reader.Read(buffer, 0, WrapHdr.dcmpSize);
 
-		delete[] outBuf;
+			out.write(buffer, WrapHdr.dcmpSize);
+
+			delete[] buffer;
+		}
 	}
-	else
-	{
-		char* buffer = new char[Size];
 
-		Reader.Read(buffer, 0, Size);
-
-		std::ofstream out(DestinationPath, std::ios::out | std::ios::binary);
-		out.write(buffer, Size);
-		out.close();
-
-		delete[] buffer;
-	}
+	out.close();
 };
