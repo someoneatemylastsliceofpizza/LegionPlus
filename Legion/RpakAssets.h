@@ -182,7 +182,8 @@ struct WrapHeader
 	char unk[4];
 	int cmpSize;
 	int dcmpSize;
-	char unk_2[6];
+	uint16_t nameLength;
+	char unk_2[4];
 	uint16_t flags; // wooooo more flags!!!!! i love flags!!!!! please give me more structs with flags!!!!
 	char unk_3[12];
 };

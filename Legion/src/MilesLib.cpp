@@ -331,7 +331,7 @@ void MilesLib::MountBank(const string& Path)
 	}
 	else
 	{
-		if (BankHeader.Version == 40) {
+		if (BankHeader.Version >= 40) {
 			// S11.1
 			auto SoundCount = BankHeader.SourcesCount - BankHeader.DialogueCount;
 			{ 
