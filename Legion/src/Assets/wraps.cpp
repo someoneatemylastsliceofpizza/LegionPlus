@@ -42,10 +42,9 @@ void RpakLib::BuildWrapInfo(const RpakLoadAsset& Asset, ApexAsset& Info)
 
 	Info.Type = ApexAssetType::Wrap;
 	Info.Status = ApexAssetStatus::Loaded;
-	Info.Info = string::Format("%s | %s", GetSizeinString(WrapHdr.dcmpSize).ToCString(), IsCompressed ? "Compressed" : "N/A");
-	Info.DebugInfo = string::Format("0x%02X | 0x%llX", WrapHdr.flags , Asset.NameHash);
+	Info.Info = string::Format("%s | %s", GetSizeinString(WrapHdr.dcmpSize).ToCString(), IsCompressed ? GetSizeinString(WrapHdr.cmpSize).ToCString() : "N/A");
+	Info.DebugInfo = string::Format("0x%02X | 0x%llX | 0x%llX", WrapHdr.flags, WrapHdr.unk, Asset.NameHash);
 }
-
 
 void RpakLib::ExportWrap(const RpakLoadAsset& Asset, const string& Path)
 {
@@ -55,7 +54,7 @@ void RpakLib::ExportWrap(const RpakLoadAsset& Asset, const string& Path)
 	RpakStream->SetPosition(this->GetFileOffset(Asset, Asset.SubHeaderIndex, Asset.SubHeaderOffset));
 	WrapHeader WrapHdr = Reader.Read<WrapHeader>();
 
-	string name = string::Format("Wrap_0x%llX",Asset.NameHash);
+	string name = string::Format("Wrap_0x%llX", Asset.NameHash);
 
 	// nam
 	if (WrapHdr.Name.Index || WrapHdr.Name.Offset)
@@ -80,8 +79,12 @@ void RpakLib::ExportWrap(const RpakLoadAsset& Asset, const string& Path)
 
 	bool IsCompressed = WrapHdr.flags & 1;
 	bool ContainsNullByte = WrapHdr.flags & 3;
+	//bool IsUnk = WrapHdr.flags == 11;
 
-	uint64_t Size = ContainsNullByte ? WrapHdr.dcmpSize : WrapHdr.dcmpSize - 1;
+	uint64_t Size = WrapHdr.dcmpSize;
+
+	if(!name.Contains("bsp"))
+	    Size = ContainsNullByte ? Size : Size - 1;
 
 	if (IsCompressed)
 	{
@@ -110,7 +113,6 @@ void RpakLib::ExportWrap(const RpakLoadAsset& Asset, const string& Path)
 
 		delete[] buffer;
 	}
-
 
 	out.close();
 };
