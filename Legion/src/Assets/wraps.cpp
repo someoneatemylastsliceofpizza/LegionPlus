@@ -72,45 +72,70 @@ void RpakLib::ExportWrap(const RpakLoadAsset& Asset, const string& Path)
 
 	if (!Utils::ShouldWriteFile(DestinationPath))
 		return;
-
-	RpakStream->SetPosition(this->GetFileOffset(Asset, WrapHdr.Data.Index, WrapHdr.Data.Offset));
-
-	std::ofstream out(DestinationPath, std::ios::out | std::ios::binary);
-
-	bool IsCompressed = WrapHdr.flags & 1;
+	  
+	bool IsCompressedBigger = WrapHdr.cmpSize > WrapHdr.dcmpSize;
+	bool IsCompressed = WrapHdr.flags & 1 && !IsCompressedBigger;
 	bool ContainsNullByte = WrapHdr.flags & 3;
+	bool IsStreamed = Asset.OptimalStarpakOffset != -1 || Asset.StarpakOffset != -1;
 
 	uint64_t Size = WrapHdr.dcmpSize;
 
-	if(!name.Contains("bsp"))
-	    Size = ContainsNullByte ? Size : Size - 1;
+	if (!name.Contains("bsp"))
+		Size = ContainsNullByte ? Size : Size - 1;
 
-	if (IsCompressed)
+	std::ofstream out(DestinationPath, std::ios::out | std::ios::binary);
+
+	uint8_t* tmpBuf = new uint8_t[Size];
+
+	if (!IsStreamed)
 	{
-		uint8_t* tmpCmpBuf = new uint8_t[Size];
-
-		Reader.Read(tmpCmpBuf, 0, Size);
-
-		auto DecompStream = RTech::DecompressStreamedBuffer(tmpCmpBuf, Size, (uint8_t)CompressionType::OODLE);
-
-		uint8_t* outBuf = new uint8_t[Size];
-		DecompStream->Read(outBuf, 0, Size);
-
-		std::ofstream out(DestinationPath, std::ios::out | std::ios::binary);
-		out.write((char*)outBuf, Size);
-
-		DecompStream.release();
-		delete[] outBuf;
+		RpakStream->SetPosition(this->GetFileOffset(Asset, WrapHdr.Data.Index, WrapHdr.Data.Offset));
+		Reader.Read(tmpBuf, 0, Size);
+		Reader.Close();
 	}
 	else
 	{
-		char* buffer = new char[Size];
+		std::unique_ptr<IO::FileStream> StarpakStream = nullptr;
+		uint64_t StreamOffset = 0;
 
-		Reader.Read(buffer, 0, Size);
+		if (Asset.OptimalStarpakOffset != -1)
+		{
+			StreamOffset = Asset.OptimalStarpakOffset & 0xFFFFFFFFFFFFFF00;
+			StarpakStream = this->GetStarpakStream(Asset, true);
+		}
+		else if (Asset.StarpakOffset != -1)
+		{
+			StreamOffset = Asset.StarpakOffset & 0xFFFFFFFFFFFFFF00;
+			StarpakStream = this->GetStarpakStream(Asset, false);
+		}
 
-		out.write(buffer, Size);
+		uint64_t OutputOffset = IsCompressedBigger ? (StreamOffset - (WrapHdr.dcmpSize - WrapHdr.cmpSize)) : StreamOffset;
 
-		delete[] buffer;
+		StarpakStream->SetPosition(OutputOffset);
+		IO::BinaryReader StarReader = IO::BinaryReader(StarpakStream.get(), true);
+
+		StarReader.Read(tmpBuf, 0, Size);
+		StarReader.Close();
+	}
+
+	if (IsCompressed)
+	{
+		std::unique_ptr<IO::MemoryStream> DecompStream = RTech::DecompressStreamedBuffer(tmpBuf, Size, (uint8_t)CompressionType::OODLE);
+
+		uint8_t* outtmpBuf = new uint8_t[Size];
+
+		DecompStream->Read(outtmpBuf, 0, Size);
+
+		out.write((char*)outtmpBuf, Size);
+
+		DecompStream.release();
+
+		delete[] outtmpBuf;
+	}
+	else
+	{
+		out.write((char*)tmpBuf, Size);
+		delete[] tmpBuf;
 	}
 
 	out.close();
