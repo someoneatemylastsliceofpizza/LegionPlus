@@ -43,7 +43,7 @@ void RpakLib::BuildWrapInfo(const RpakLoadAsset& Asset, ApexAsset& Info)
 	Info.Type = ApexAssetType::Wrap;
 	Info.Status = ApexAssetStatus::Loaded;
 	Info.Info = string::Format("%s | %s", GetSizeinString(WrapHdr.dcmpSize).ToCString(), IsCompressed ? GetSizeinString(WrapHdr.cmpSize).ToCString() : "N/A");
-	Info.DebugInfo = string::Format("0x%02X | 0x%llX | 0x%llX", WrapHdr.flags, WrapHdr.unk, Asset.NameHash);
+	Info.DebugInfo = string::Format("0x%02X | 0x%llX", WrapHdr.flags, Asset.NameHash);
 }
 
 void RpakLib::ExportWrap(const RpakLoadAsset& Asset, const string& Path)
@@ -79,7 +79,6 @@ void RpakLib::ExportWrap(const RpakLoadAsset& Asset, const string& Path)
 
 	bool IsCompressed = WrapHdr.flags & 1;
 	bool ContainsNullByte = WrapHdr.flags & 3;
-	//bool IsUnk = WrapHdr.flags == 11;
 
 	uint64_t Size = WrapHdr.dcmpSize;
 
