@@ -488,7 +488,6 @@ std::unique_ptr<Assets::Model> RpakLib::ExtractModel_V16(const RpakLoadAsset& As
 
 	bool bExportAllMaterials = ExportManager::Config.GetBool("ModelMatExport") ? IncludeMaterials : false;
 
-
 	IO::BinaryReader vgReader = IO::BinaryReader(vgStream.get(), true);
 	if (lods.front().numMeshes > 0)
 		this->ExtractModelLod_V16(vgReader, RpakStream, ModelName, vgStream->GetPosition(), Model, Fixups, Asset.AssetVersion, bExportAllMaterials);
@@ -670,24 +669,28 @@ std::unique_ptr<Assets::Model> RpakLib::ExtractModel(const RpakLoadAsset& Asset,
 
 	studiohdr_t SkeletonHeader{};
 
-	if (Asset.AssetVersion > 12)
+	switch (Asset.AssetVersion)
 	{
-		switch (Asset.AssetVersion)
+	case 13:
+		SkeletonHeader.FromV13(Reader.Read<studiohdr_t_v13>());
+		break;
+	case 14:
+		SkeletonHeader.FromV14(Reader.Read<studiohdr_t_v14>());
+		break;
+	default:
+		if (Asset.SubHeaderSize == 0x68 && Asset.AssetVersion == 12) // 12.1
 		{
-		case 13:
-			SkeletonHeader.FromV13(Reader.Read<studiohdr_t_v13>());
-			break;
-		case 14:
-			SkeletonHeader.FromV14(Reader.Read<studiohdr_t_v14>());
-			break;
-		default:
-			break;
+			SkeletonHeader.FromV121(Reader.Read<studiohdr_t_v121>());
 		}
+		else if (Asset.SubHeaderSize != 0x78)
+		{
+			SkeletonHeader = Reader.Read<studiohdr_t>();
+		}
+		else
+			SkeletonHeader.FromS3(Reader.Read<s3studiohdr_t>());
+
+		break;
 	}
-	else if (Asset.SubHeaderSize != 120)
-		SkeletonHeader.FromV121(Reader.Read<studiohdr_t_v121>());
-	else
-		SkeletonHeader.FromS3(Reader.Read<s3studiohdr_t>());
 
 	uint32_t SubmeshLodsOffset = SkeletonHeader.SubmeshLodsOffset;
 	uint32_t TexturesOffset = SkeletonHeader.textureindex;
