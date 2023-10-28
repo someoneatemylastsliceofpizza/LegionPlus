@@ -685,7 +685,7 @@ std::unique_ptr<Assets::Model> RpakLib::ExtractModel(const RpakLoadAsset& Asset,
 		}
 	}
 	else if (Asset.SubHeaderSize != 120)
-		SkeletonHeader = Reader.Read<studiohdr_t>();
+		SkeletonHeader.FromV121(Reader.Read<studiohdr_t_v121>());
 	else
 		SkeletonHeader.FromS3(Reader.Read<s3studiohdr_t>());
 

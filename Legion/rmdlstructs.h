@@ -1634,6 +1634,51 @@ struct studiohdr_t // latest studiohdr
 		this->BoneRemapCount = 0;
 	}
 
+	inline void FromV121(studiohdr_t_v121 n)
+	{
+		for (int i = 0; i < 64; i++)
+			this->name[i] = n.name[i];
+
+		this->id = n.id;
+		this->version = n.version;
+		this->checksum = n.checksum;
+		this->sznameindex = n.sznameindex;
+		this->length = n.length;
+		this->eyeposition = n.eyeposition;
+		this->illumposition = n.illumposition;
+		this->hull_min = n.hull_min;
+		this->hull_max = n.hull_max;
+		this->view_bbmin = n.view_bbmin;
+		this->view_bbmax = n.view_bbmax;
+		this->flags = n.flags;
+		this->numbones = n.numbones;
+		this->boneindex = n.boneindex;
+		this->numbonecontrollers = n.numbonecontrollers;
+		this->bonecontrollerindex = n.bonecontrollerindex;
+		this->numhitboxsets = n.numhitboxsets;
+		this->hitboxsetindex = n.hitboxsetindex;
+		this->numlocalanim = n.numlocalanim;
+		this->localanimindex = n.localanimindex;
+		this->numlocalseq = n.numlocalseq;
+		this->localseqindex = n.localseqindex;
+		this->activitylistversion = n.activitylistversion;
+		this->materialtypesindex = n.materialtypesindex;
+		this->numtextures = n.numtextures;
+		this->textureindex = n.textureindex;
+		this->numcdtextures = n.numcdtextures;
+		this->cdtextureindex = n.cdtextureindex;
+		this->numskinref = n.numskinref;
+		this->numskinfamilies = n.numskinfamilies;
+		this->skinindex = n.skinindex;
+		this->numbodyparts = n.numbodyparts;
+		this->bodypartindex = n.bodypartindex;
+		this->numlocalattachments = n.numlocalattachments;
+		this->localattachmentindex = n.localattachmentindex;
+		this->SubmeshLodsOffset = n.ikchainindex; // what?
+		this->OffsetToBoneRemapInfo = n.boneStateIndex;
+		this->BoneRemapCount = n.numBoneStates;
+	}
+
 	inline void FromV13(studiohdr_t_v13 n)
 	{
 		for (int i = 0; i < 64; i++)
