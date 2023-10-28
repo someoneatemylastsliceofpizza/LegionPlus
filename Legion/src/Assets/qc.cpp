@@ -305,9 +305,17 @@ void RpakLib::ExportQC(const RpakLoadAsset& Asset, const string& Path, const str
 				model = reinterpret_cast<mstudiomodelv54_t_v16*>(pModel)->Downgrade();
 				break;
 			default:
-				pModel = pModel + (ModelIndex * sizeof(mstudiomodelv54_t));
-				model = *reinterpret_cast<mstudiomodelv54_t*>(pModel);
-				break;
+				if (Asset.SubHeaderSize == 0x68 && AssetVersion == 12)
+				{
+					pModel = pModel + (ModelIndex * sizeof(mstudiomodel_t_v54_v121));
+					model = reinterpret_cast<mstudiomodel_t_v54_v121*>(pModel)->Downgrade();
+				}
+				else
+				{
+					pModel = pModel + (ModelIndex * sizeof(mstudiomodelv54_t));
+					model = *reinterpret_cast<mstudiomodelv54_t*>(pModel);
+					break;
+				}
 			}
 
 			BodyPartmodels.EmplaceBack(model);

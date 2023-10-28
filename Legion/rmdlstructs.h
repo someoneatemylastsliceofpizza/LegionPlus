@@ -1893,6 +1893,55 @@ struct mstudiomodelv54_t
 	int unkindex1;
 };
 
+struct mstudiomodel_t_v54_v121
+{
+	char name[64];
+
+	int unkindex2; // byte before string block
+
+	// it looks like they write the entire name
+	// then write over it with other values where needed
+	// why.
+	int type;
+
+	float boundingradius;
+
+	int nummeshes;
+	int meshindex;
+
+	// cache purposes
+	int numvertices; // number of unique vertices/normals/texcoords
+	int vertexindex; // vertex Vector
+	int tangentsindex; // tangents Vector
+
+	int numattachments;
+	int attachmentindex;
+
+	int colorindex; // vertex color
+	// offset by colorindex number of bytes into vvc vertex colors
+	int uv2index; // vertex second uv map
+	// offset by uv2index number of bytes into vvc secondary uv map
+
+	inline mstudiomodelv54_t Downgrade()
+	{
+		mstudiomodelv54_t out{};
+
+		for (int i = 0; i < 64; i++)
+			out.name[i] = this->name[i];
+
+		out.unkindex2 = this->unkindex2;
+		out.nummeshes = this->nummeshes;
+		out.meshindex = this->meshindex;
+		out.numvertices = this->numvertices;
+		out.vertexindex = this->vertexindex;
+		out.tangentsindex = this->tangentsindex;
+		out.numattachments = this->numattachments;
+		out.attachmentindex = this->attachmentindex;
+
+		return out;
+	}
+};
+
 struct mstudiomodelv54_t_v13
 {
 	char name[64];
