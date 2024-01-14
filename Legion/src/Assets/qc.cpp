@@ -167,9 +167,6 @@ void RpakLib::ExportQC(const RpakLoadAsset& Asset, const string& Path, const str
 	}
 	else extention = this->ModelExporter->ModelExtension();
 
-	if (AssetVersion > 16)
-		return;
-
 	IO::StreamWriter qc(IO::File::Create(Path));
 
 	s3studiohdr_t hdr{};
@@ -184,6 +181,7 @@ void RpakLib::ExportQC(const RpakLoadAsset& Asset, const string& Path, const str
 		hdr = reinterpret_cast<studiohdr_t_v14*>(rmdlBuf)->Downgrade();
 		break;
 	case 16:
+	case 17:
 		hdr = reinterpret_cast<studiohdr_t_v16*>(rmdlBuf)->Downgrade();
 		break;
 	default:
@@ -212,7 +210,7 @@ void RpakLib::ExportQC(const RpakLoadAsset& Asset, const string& Path, const str
 	std::vector<mstudiobonev54_t> Bones(hdr.numbones);
 
 	uint64_t v16bonedataindex = 0;
-	if (AssetVersion == 16)
+	if (AssetVersion >= 16)
 		v16bonedataindex = reinterpret_cast<studiohdr_t_v16*>(rmdlBuf)->bonedataindex;
 
 	for (int i = 0; i < hdr.numbones; i++)
@@ -267,6 +265,7 @@ void RpakLib::ExportQC(const RpakLoadAsset& Asset, const string& Path, const str
 			bodyPart = reinterpret_cast<mstudiobodyparts_t_v15*>(pBodyPart)->Downgrade();
 			break;
 		case 16:
+		case 17:
 			pBodyPart = pBodyPart + (BodyPartIndex * sizeof(mstudiobodyparts_t_v16));
 			bodyPart = reinterpret_cast<mstudiobodyparts_t_v16*>(pBodyPart)->Downgrade();
 			break;
@@ -301,6 +300,7 @@ void RpakLib::ExportQC(const RpakLoadAsset& Asset, const string& Path, const str
 				model = reinterpret_cast<mstudiomodelv54_t_v14*>(pModel)->Downgrade();
 				break;
 			case 16:
+			case 17:
 				pModel = pModel + (ModelIndex * sizeof(mstudiomodelv54_t_v16));
 				model = reinterpret_cast<mstudiomodelv54_t_v16*>(pModel)->Downgrade();
 				break;
@@ -331,6 +331,7 @@ void RpakLib::ExportQC(const RpakLoadAsset& Asset, const string& Path, const str
 				switch (AssetVersion)
 				{
 				case 16:
+				case 17:
 					pMesh = pMesh + (MeshIndex * sizeof(mstudiomeshv54_t_v16));
 					mesh = reinterpret_cast<mstudiomeshv54_t_v16*>(pMesh)->Downgrade();
 					break;
