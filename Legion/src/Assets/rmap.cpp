@@ -11,7 +11,7 @@ void RpakLib::BuildMapInfo(const RpakLoadAsset& Asset, ApexAsset& Info)
 
 	RpakStream->SetPosition(this->GetFileOffset(Asset, Asset.SubHeaderIndex, Asset.SubHeaderOffset));
 
-	string Name = string::Format("map_%llx", Asset.NameHash);
+	string Name = string::Format("rmap_%llx", Asset.NameHash);
 
 	if (ExportManager::Config.GetBool("UseFullPaths"))
 		Info.Name = Name;

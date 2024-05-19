@@ -13,9 +13,9 @@ void RpakLib::BuildShaderSetInfo(const RpakLoadAsset& Asset, ApexAsset& Info)
 
 	string Name = string::Format("shaderset_0x%llx", Asset.NameHash);
 
-	if (ShdsHeader.pName.Index || ShdsHeader.pName.Offset)
+	if (ShdsHeader.Name.Index || ShdsHeader.Name.Offset)
 	{
-		RpakStream->SetPosition(this->GetFileOffset(Asset, ShdsHeader.pName.Index, ShdsHeader.pName.Offset));
+		RpakStream->SetPosition(this->GetFileOffset(Asset, ShdsHeader.Name.Index, ShdsHeader.Name.Offset));
 
 		Name = string::Format("%s 0x%llx ", Reader.ReadCString().ToCString(), Asset.NameHash);
 	}
@@ -39,9 +39,9 @@ void RpakLib::ExportShaderSet(const RpakLoadAsset& Asset, const string& Path)
 
 	ShaderSetHeader Header = Reader.Read<ShaderSetHeader>();
 
-	if (Header.pName.Index || Header.pName.Offset)
+	if (Header.Name.Index || Header.Name.Offset)
 	{
-		RpakStream->SetPosition(this->GetFileOffset(Asset, Header.pName.Index , Header.pName.Offset));
+		RpakStream->SetPosition(this->GetFileOffset(Asset, Header.Name.Index , Header.Name.Offset));
 
 		ShaderSetPath = IO::Path::Combine(Path, Reader.ReadCString());
 	}

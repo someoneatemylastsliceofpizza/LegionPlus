@@ -293,27 +293,26 @@ RMdlMaterial RpakLib::ExtractMaterial(const RpakLoadAsset& Asset, const string& 
 
 	bool shadersetLoaded = Assets.ContainsKey(hdr.shaderSetGuid);
 
+	string shadersetName = "(no debug name)";
 	if (shadersetLoaded)
 	{
-		RpakLoadAsset ShaderSetAsset = Assets[hdr.shaderSetGuid];
-		ShaderSetHeader ShaderSetHeader = ExtractShaderSet(ShaderSetAsset);
+		const RpakLoadAsset& shadersetAsset = Assets[hdr.shaderSetGuid];
 
-		uint64_t PixelShaderGuid = ShaderSetHeader.PixelShaderHash;
+		RpakStream->SetPosition(this->GetFileOffset(shadersetAsset, shadersetAsset.SubHeaderIndex, shadersetAsset.SubHeaderOffset));
+		ShaderSetHeader ShdsHeader = Reader.Read<ShaderSetHeader>();
+		if (ShdsHeader.Name.Index || ShdsHeader.Name.Offset)
+		{
+			RpakStream->SetPosition(this->GetFileOffset(shadersetAsset, ShdsHeader.Name.Index, ShdsHeader.Name.Offset));
 
-		if (ShaderSetAsset.AssetVersion <= 11)
-			PixelShaderGuid = ShaderSetHeader.OldPixelShaderHash;
-
-		if (Assets.ContainsKey(PixelShaderGuid))
-			PixelShaderResBindings = ExtractShaderResourceBindings(Assets[PixelShaderGuid], D3D_SHADER_INPUT_TYPE::D3D_SIT_TEXTURE);
-		//else
-		//	g_Logger.Warning("Shaderset for material '%s' referenced a pixel shader that is not currently loaded. Unable to associate texture types.\n", Result.MaterialName.ToCString());
+			shadersetName = Reader.ReadCString();
+		}
 	}
 
 	if (!silent)
 	{
 		g_Logger.Info("Material Info for '%s' (%llX)\n", Result.MaterialName.ToCString(), Asset.NameHash);
 		g_Logger.Info("=================================\n");
-		g_Logger.Info("> ShaderSet: %llx : %llu (%s) \n", hdr.shaderSetGuid, hdr.shaderSetGuid, shadersetLoaded ? "LOADED" : "NOT LOADED");
+		g_Logger.Info("> ShaderSet: '%s' : %llx : %llu (%s) \n", shadersetName.ToCString(), hdr.shaderSetGuid, hdr.shaderSetGuid, shadersetLoaded ? "LOADED" : "NOT LOADED");
 		g_Logger.Info("=================================\n");
 	}
 

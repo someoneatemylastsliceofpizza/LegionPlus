@@ -1234,13 +1234,13 @@ struct RShaderImage
 	uint32_t DataOffset2;
 };
 
+
+
 // --- shds ---
 struct ShaderSetHeader {
 	uint64_t VTablePadding;
-
-	RPakPtr pName;
-
-	uint8_t pad_0008[8];
+	RPakPtr Name;
+	uint8_t Unknown1[0x8];
 	uint16_t Count1;
 	uint16_t TextureInputCount;
 	uint16_t NumSamplers;
@@ -1248,7 +1248,7 @@ struct ShaderSetHeader {
 	uint8_t NumViews;
 	uint8_t Byte1;
 
-	uint8_t pad_0021[15]; //0x0021
+	uint8_t Unknown2[0x10];
 
 	uint64_t OldVertexShaderHash;
 	uint64_t OldPixelShaderHash;

@@ -88,10 +88,17 @@ namespace Themes
 	*/
 
 	// S17 Theme
-	const static auto BorderBrush = Drawing::Color(18, 98, 167);
-	const static auto DarkBorderBrush = Drawing::Color(18, 98, 167);
-	const static auto ProgressGrad1 = Drawing::Color(18, 98, 167);
-	const static auto ProgressGrad2 = Drawing::Color(93, 148, 223);
+	//const static auto BorderBrush = Drawing::Color(18, 98, 167);
+	//const static auto DarkBorderBrush = Drawing::Color(18, 98, 167);
+	//const static auto ProgressGrad1 = Drawing::Color(18, 98, 167);
+	//const static auto ProgressGrad2 = Drawing::Color(93, 148, 223);
+
+
+
+	const static auto BorderBrush = Drawing::Color(158, 158, 158);
+	const static auto DarkBorderBrush = Drawing::Color(238, 238, 238);
+	const static auto ProgressGrad1 = Drawing::Color(238, 238, 238);
+	const static auto ProgressGrad2 = Drawing::Color(189, 189, 189);
 
 	
 	// Constants for images

@@ -70,6 +70,8 @@ void RpakLib::BuildEffectInfo(const RpakLoadAsset& Asset, ApexAsset& Info)
 			ptr = Reader.Read<RPakPtr>();
 			RpakStream->SetPosition(this->GetFileOffset(Asset, ptr));
 			string PSOName = Reader.ReadCString();
+
+			Info.DebugInfo = name + "|" + PSOName;
 		}
 	}
 
