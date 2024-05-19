@@ -300,7 +300,9 @@ RMdlMaterial RpakLib::ExtractMaterial(const RpakLoadAsset& Asset, const string& 
 
 		RpakStream->SetPosition(this->GetFileOffset(shadersetAsset, shadersetAsset.SubHeaderIndex, shadersetAsset.SubHeaderOffset));
 		ShaderSetHeader ShdsHeader = Reader.Read<ShaderSetHeader>();
-		if (ShdsHeader.Name.Index || ShdsHeader.Name.Offset)
+		if ((ShdsHeader.Name.Index || ShdsHeader.Name.Offset)
+			&& ShdsHeader.Name.Index < shadersetAsset.PakFile->SegmentBlocks.Count()  // TODO
+			)
 		{
 			RpakStream->SetPosition(this->GetFileOffset(shadersetAsset, ShdsHeader.Name.Index, ShdsHeader.Name.Offset));
 
