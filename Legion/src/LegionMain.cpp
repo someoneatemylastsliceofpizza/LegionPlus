@@ -116,6 +116,15 @@ void LegionMain::InitializeComponent()
 	this->RefreshAssetsButton->Click += &OnRefreshClick;
 	this->AddControl(this->RefreshAssetsButton);
 
+	this->ExportFolder = new UIX::UIXButton();
+	this->ExportFolder->SetSize({ 78, 27 });
+	this->ExportFolder->SetLocation({ 542, 446 });
+	this->ExportFolder->SetTabIndex(9);
+	this->ExportFolder->SetText("ExportFolder");
+	this->ExportFolder->SetAnchor(Forms::AnchorStyles::Bottom | Forms::AnchorStyles::Left);
+	this->ExportFolder->Click += &OnExportFolderClick;
+	this->AddControl(this->ExportFolder);
+
 	this->SettingsButton = new UIX::UIXButton();
 	this->SettingsButton->SetSize({ 80, 27 });
 	this->SettingsButton->SetLocation({ 752, 446});
@@ -734,6 +743,12 @@ void LegionMain::OnRefreshClick(Forms::Control* Sender)
 	ThisPtr->RefreshView();
 }
 
+void LegionMain::OnExportFolderClick(Forms::Control* Sender)
+{
+	String ExportPath = IO::Path::Combine(ExportManager::ApplicationPath, "exported_files");
+	system("start \"\" \"" + ExportPath + "\"");
+}
+
 void LegionMain::OnListRightClick(const std::unique_ptr<MouseEventArgs>& EventArgs, Forms::Control* Sender)
 {
 	if (EventArgs->Button != Forms::MouseButtons::Right)
@@ -775,7 +790,7 @@ void LegionMain::OnListKeyUp(const std::unique_ptr<KeyEventArgs>& EventArgs, For
 	{
 		((LegionMain*)Sender->FindForm())->ExportSingleAsset();
 	}
-	else if (EventArgs->KeyCode() == Keys::P)
+	else if (EventArgs->KeyCode() == Keys::Space)
 	{
 		LegionMain* Form = (LegionMain*)Sender->FindForm();
 

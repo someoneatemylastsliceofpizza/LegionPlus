@@ -92,6 +92,8 @@ void RpakLib::BuildModelInfo(const RpakLoadAsset& Asset, ApexAsset& Info)
 
 void RpakLib::ExportModel(const RpakLoadAsset& Asset, const string& Path, const string& AnimPath)
 {
+
+	IO::Directory::CreateDirectory(Path);
 	auto Model = this->ExtractModel(Asset, Path, AnimPath, true, true);
 
 	if (Model && this->ModelExporter)

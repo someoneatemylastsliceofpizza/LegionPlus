@@ -437,7 +437,7 @@ namespace Assets
 	{
 		auto IsAltKey = (GetKeyState(VK_MENU) & 0x8000);
 
-		if (EventArgs->Button == Forms::MouseButtons::Left && IsAltKey)
+		if (EventArgs->Button == Forms::MouseButtons::Left)
 		{
 			float dPhi = ((float)(this->_TargetMousePosition.Y - EventArgs->Y) / 200.f);
 			float dTheta = ((float)(this->_TargetMousePosition.X - EventArgs->X) / 200.f);
@@ -445,7 +445,7 @@ namespace Assets
 			this->_Camera.Rotate(dTheta, dPhi);
 			this->Redraw();
 		}
-		else if (EventArgs->Button == Forms::MouseButtons::Middle && IsAltKey)
+		else if (EventArgs->Button == Forms::MouseButtons::Middle)
 		{
 			float dx = ((float)(this->_TargetMousePosition.X - EventArgs->X));
 			float dy = ((float)(this->_TargetMousePosition.Y - EventArgs->Y));
@@ -456,7 +456,7 @@ namespace Assets
 			this->_Camera.Pan(dx * .1f, dy * .1f);
 			this->Redraw();
 		}
-		else if (EventArgs->Button == Forms::MouseButtons::Right && IsAltKey)
+		else if (EventArgs->Button == Forms::MouseButtons::Right)
 		{
 			float dx = ((float)(this->_TargetMousePosition.X - EventArgs->X) / 2.f);
 

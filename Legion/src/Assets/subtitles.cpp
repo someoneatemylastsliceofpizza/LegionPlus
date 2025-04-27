@@ -26,6 +26,7 @@ void RpakLib::BuildSubtitleInfo(const RpakLoadAsset& Asset, ApexAsset& Info)
 
 void RpakLib::ExportSubtitles(const RpakLoadAsset& Asset, const string& Path)
 {
+	IO::Directory::CreateDirectory(Path);
 	TextExportFormat_t Format = (TextExportFormat_t)ExportManager::Config.Get<System::SettingType::Integer>("TextFormat");
 
 	string sExtension = "";

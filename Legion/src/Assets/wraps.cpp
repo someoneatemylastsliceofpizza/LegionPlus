@@ -48,6 +48,7 @@ void RpakLib::BuildWrapInfo(const RpakLoadAsset& Asset, ApexAsset& Info)
 
 void RpakLib::ExportWrap(const RpakLoadAsset& Asset, const string& Path)
 {
+	IO::Directory::CreateDirectory(Path);
 	auto RpakStream = this->GetFileStream(Asset);
 	IO::BinaryReader Reader = IO::BinaryReader(RpakStream.get(), true);
 

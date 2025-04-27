@@ -238,6 +238,8 @@ void RpakLib::ExportMaterialCPU(const RpakLoadAsset& Asset, const string& Path)
 
 void RpakLib::ExportMaterial(const RpakLoadAsset& Asset, const string& Path)
 {
+
+	IO::Directory::CreateDirectory(Path);
 	RMdlMaterial Material = this->ExtractMaterial(Asset, Path, false, false);
 	string OutPath = IO::Path::Combine(Path, Material.MaterialName);
 

@@ -69,6 +69,7 @@ void RpakLib::BuildTextureInfo(const RpakLoadAsset& asset, ApexAsset& assetInfo)
 
 void RpakLib::ExportTexture(const RpakLoadAsset& asset, const string& path, bool includeImageNames, string nameOverride, bool normalRecalculate)
 {
+	IO::Directory::CreateDirectory(path);
 	string destName = nameOverride == "" ? string::Format("0x%llx%s", asset.NameHash, (const char*)ImageExtension) : nameOverride;
 	string destPath = IO::Path::Combine(path, destName);
 

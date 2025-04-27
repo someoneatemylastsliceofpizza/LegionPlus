@@ -54,6 +54,7 @@ void RpakLib::BuildSettingsLayoutInfo(const RpakLoadAsset& Asset, ApexAsset& Inf
 
 void RpakLib::ExportSettingsLayout(const RpakLoadAsset& Asset, const string& Path)
 {
+	IO::Directory::CreateDirectory(Path);
 	SettingsLayout Layout = this->ExtractSettingsLayout(Asset);
 
 	string dirpath = IO::Path::Combine(Path, IO::Path::GetDirectoryName(Layout.name));
@@ -95,6 +96,7 @@ void RpakLib::ExportSettingsLayout(const RpakLoadAsset& Asset, const string& Pat
 
 void RpakLib::ExportSettings(const RpakLoadAsset& Asset, const string& Path)
 {
+	IO::Directory::CreateDirectory(Path);
 	auto RpakStream = this->GetFileStream(Asset);
 	IO::BinaryReader Reader = IO::BinaryReader(RpakStream.get(), true);
 

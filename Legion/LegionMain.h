@@ -39,6 +39,7 @@ protected:
 	static void OnClearClick(Forms::Control* Sender);
 	static void OnTitanfallClick(Forms::Control* Sender);
 	static void OnRefreshClick(Forms::Control* Sender);
+	static void OnExportFolderClick(Forms::Control* Sender);
 	static void OnDumpAssetListClick(Forms::Control* Sender);
 	static void OnListRightClick(const std::unique_ptr<MouseEventArgs>& EventArgs, Forms::Control* Sender);
 	static void OnListDoubleClick(Forms::Control* Sender);
@@ -85,6 +86,7 @@ private:
 	UIX::UIXButton* LoadRPakButton;
 	UIX::UIXButton* SettingsButton;
 	UIX::UIXButton* RefreshAssetsButton;
+	UIX::UIXButton* ExportFolder;
 	UIX::UIXButton* DumpAssetListButton;
 	UIX::UIXListView* AssetsListView;
 

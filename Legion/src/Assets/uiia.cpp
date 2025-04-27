@@ -55,6 +55,8 @@ void RpakLib::BuildUIIAInfo(const RpakLoadAsset& Asset, ApexAsset& Info)
 
 void RpakLib::ExportUIIA(const RpakLoadAsset& Asset, const string& Path)
 {
+
+	IO::Directory::CreateDirectory(Path);
 	string DestinationPath = IO::Path::Combine(Path, string::Format("0x%llx%s", Asset.NameHash, (const char*)ImageExtension));
 
 	if (!Utils::ShouldWriteFile(DestinationPath)) // Ignore existing assets...

@@ -30,6 +30,7 @@ void RpakLib::BuildShaderSetInfo(const RpakLoadAsset& Asset, ApexAsset& Info)
 
 void RpakLib::ExportShaderSet(const RpakLoadAsset& Asset, const string& Path)
 {
+	IO::Directory::CreateDirectory(Path);
 	string ShaderSetPath = IO::Path::Combine(Path, string::Format("0x%llx", Asset.NameHash));
 
 	auto RpakStream = this->GetFileStream(Asset);

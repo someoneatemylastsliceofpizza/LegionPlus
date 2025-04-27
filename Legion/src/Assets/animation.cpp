@@ -219,6 +219,7 @@ void RpakLib::ExportAnimationRig(const RpakLoadAsset& Asset, const string& Path)
 		return;
 	}
 
+	IO::Directory::CreateDirectory(Path);
 	auto RpakStream = this->GetFileStream(Asset);
 	IO::BinaryReader Reader = IO::BinaryReader(RpakStream.get(), true);
 
@@ -774,6 +775,7 @@ void RpakLib::ExtractAnimation_V11(const RpakLoadAsset& Asset, const List<Assets
 
 void RpakLib::ExportAnimationSeq(const RpakLoadAsset& Asset, const string& Path)
 {
+	IO::Directory::CreateDirectory(Path);
 	auto RpakStream = this->GetFileStream(Asset);
 	IO::BinaryReader Reader = IO::BinaryReader(RpakStream.get(), true);
 

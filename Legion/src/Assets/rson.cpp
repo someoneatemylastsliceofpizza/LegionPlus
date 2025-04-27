@@ -13,6 +13,7 @@ void RpakLib::BuildRSONInfo(const RpakLoadAsset& Asset, ApexAsset& Info)
 
 void RpakLib::ExportRSON(const RpakLoadAsset& Asset, const string& Path)
 {
+	IO::Directory::CreateDirectory(Path);
 	string Name = string::Format("0x%llx.rson", Asset.NameHash);
 
 	IO::Directory::CreateDirectory(Path);
