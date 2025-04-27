@@ -746,6 +746,7 @@ void LegionMain::OnRefreshClick(Forms::Control* Sender)
 void LegionMain::OnExportFolderClick(Forms::Control* Sender)
 {
 	String ExportPath = IO::Path::Combine(ExportManager::ApplicationPath, "exported_files");
+	IO::Directory::CreateDirectory(ExportPath);
 	system("start \"\" \"" + ExportPath + "\"");
 }
 
